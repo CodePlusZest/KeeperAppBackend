@@ -45,6 +45,22 @@ Note IDs are UUIDs. `createdAt` and `updatedAt` are Unix timestamps in milliseco
 
 ## Database status
 
-The app does not create tables at startup. Do not create the tables manually. In the next phase, define the `users` and `notes` SQLAlchemy models and create the schema with Alembic migrations. Until those migrations are applied, the health check can verify the database connection, but note CRUD requires the notes table to exist.
+The app does not create tables at startup. Do not create tables manually. The SQLAlchemy `User` and `Note` models define the schema, and the initial migration is `migration/versions/001_Initiatal_DB_setup.py`.
+
+Review the migration before applying it to the database:
+
+```powershell
+alembic upgrade head
+alembic current
+```
+
+Create later migrations with the next numeric revision ID, review the generated file, and then apply it:
+
+```powershell
+alembic revision --autogenerate --rev-id 002 -m "describe schema change"
+alembic upgrade head
+```
+
+The health check can run before migrations are applied. Note CRUD requires the tables to exist, and note creation needs authenticated user ownership before it can populate the required `user_id`.
 
 Authentication and user-specific note access are not implemented yet. Keep this API restricted to local development until those protections are added.
